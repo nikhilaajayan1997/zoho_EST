@@ -1,0 +1,35 @@
+
+......................... Views  ( to Replace  )................
+def itemdata_challan(request):
+    cur_user = request.user
+    user = cur_user.id
+    try:
+        id = request.GET.get('id')
+
+        try:
+            item = AddItem.objects.get(Name=id, user=user)
+            name = item.Name
+            rate = item.s_price
+            hsn=item.hsn
+            # Assuming `company_name` is a field in the `company_details` model
+            place = company_details.objects.get(user=cur_user).company_name
+            return JsonResponse({"status": "not", 'place': place, 'rate': rate,'hsn':hsn})
+        except AddItem.DoesNotExist:
+            return JsonResponse({"status": "error", 'message': "Item not found"})
+    except Exception as e:
+        return JsonResponse({"status": "error", 'message': str(e)})
+
+
+...............................  Views ( New )  ...................
+
+@login_required(login_url='login')
+def customer_dropdown_estimate(request):
+    user = User.objects.get(id=request.user.id)
+    options = {}
+    option_objects = customer.objects.all()
+    for option in option_objects:
+        display_name = option.customerName
+        options[option.id] = [display_name, f"{display_name}"]
+        
+    return JsonResponse(options)
+    
